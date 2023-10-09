@@ -1,20 +1,20 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const bodyParser = require('body-parser')
 const UserModel = require("./models/User");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(bodyParser.json());
 
 const uri = "mongodb+srv://admin:mongodb@clusteruser.5pf96sm.mongodb.net/hulkfit?retryWrites=true&w=majority"
 
 mongoose
   .connect(
     uri,{ useNewUrlParser: true, useUnifiedTopology: true }
-  )
-  .then(() => console.log("connect success"))
-  .catch((err) => console.error(err));
+  );
 
 app.get("/", (req, res) => {
   UserModel.find({})
@@ -22,12 +22,24 @@ app.get("/", (req, res) => {
     .catch((err) => res.json(err));
 });
 
-app.get("/getUserByEmail/:email", (req, res) => {
-  const email = req.params.email;
-  UserModel.find({ email: email })
-    .then((user) => res.json(user))
-    .catch((err) => res.json(err));
+app.post('/login', async (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+
+  try {
+    const user = await UserModel.findOne({ email:email, password:password });
+    console.log(user)
+    if (user) {
+      res.json({ success: true, message: 'Login successful', id:user._id });
+    } else {
+      res.status(401).json({ success: false, message: `Invalid credentials` });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'An error occurred' });
+  }
+
 });
+
 
 app.get("/getUserById/:id", (req, res) => {
   const id = req.params.id;
