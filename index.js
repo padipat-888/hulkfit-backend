@@ -22,6 +22,13 @@ app.get("/", (req, res) => {
     .catch((err) => res.json(err));
 });
 
+app.get("/getUserByEmail/:email", (req, res) => {
+  const email = req.params.email;
+  UserModel.find({ email: email })
+    .then((user) => res.json(user))
+    .catch((err) => res.json(err));
+});
+
 app.get("/getUserById/:id", (req, res) => {
   const id = req.params.id;
   UserModel.findById({ _id: id })

@@ -5,10 +5,12 @@ const userSchema = new mongoose.Schema({
   email: String,
   pass: String,
   img: String
-},{
+},
+{
     collection:"user"
-});
+}
+);
 
-const UserModel = mongoose.model("user", userSchema);
+const UserModel = mongoose.model("user", userSchema); 
 
 module.exports = UserModel;
