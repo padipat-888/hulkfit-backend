@@ -44,18 +44,24 @@ app.get('/', (req, res) => {
 app.post('/login', async (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  console.log(req.body.email)
-  console.log(req.body.password)
+  console.log(`
+  User Login !
+  Email:${req.body.email}
+  Pass:${req.body.password}
+  `)
 
   try {
     const user = await UserModel.findOne({ email });
-    
-    console.log("got that user : ",user);
 
     if (!user) {
-      return res.status(400).json({ message: 'Invalid E-mail' });
+      console.log(`Email Not Found : ${email}`);
+      res.status(400).json({ message: 'Invalid E-mail' });
+      return 
     }
     
+    if (user){
+
+    }
     const isPasswordMatch = await bcrypt.compare(password, user.password);
     console.log(`Password match is : ${isPasswordMatch}`)
 
@@ -72,6 +78,8 @@ app.post('/login', async (req, res) => {
 });
 
 app.post('/signup',upload.single('image'), async (req, res) => {
+  console.log('User SignUp!!')
+  
   const fullname = req.body.fullname;
   const email = req.body.email;
   const password = req.body.password;
