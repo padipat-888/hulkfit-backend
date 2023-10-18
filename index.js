@@ -6,6 +6,7 @@ const UserModel = require('./models/User');
 const multer  = require('multer')
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
+const ActivityModel = require('./models/Activity');
 
 
 const storage = multer.diskStorage({
@@ -22,6 +23,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
@@ -59,10 +61,8 @@ app.post('/login', async (req, res) => {
       return 
     }
     
-    if (user){
-
-    }
     const isPasswordMatch = await bcrypt.compare(password, user.password);
+    
     console.log(`Password match is : ${isPasswordMatch}`)
 
     if (isPasswordMatch) {
@@ -104,23 +104,34 @@ app.post('/signup',upload.single('image'), async (req, res) => {
   }
 });
 
+app.post('/addactivity',async (req, res) => {
+  console.log('User Add Activity!!')
+  //////////////////
+  const userId = req.body.userId
+  const actName = req.body.actName;
+  const actDescription = req.body.actDescription;
+  const actType = req.body.actType;
+  const actDuration = req.body.actDuration;
+  const actDate = req.body.actDate;
 
-app.put('/updateUser/:id', (req, res) => {
-  const id = req.params.id;
-  UserModel.findByIdAndUpdate(
-    { _id: id },
-    { name: req.body.name, email: req.body.email, age: req.body.age }
-  )
-    .then((user) => res.json(user))
-    .catch((err) => res.json(err));
+  const newAct = new ActivityModel({
+    userId,
+    actName,
+    actDescription,
+    actType,
+    actDuration,
+    actDate
+  })
+
+  try {
+    const savedUser = await newAct.save();
+    res.status(200).json(savedUser);
+    console.log(savedUser)
+  } catch (error) {
+    res.status(500).json({ message: 'Error saving user', error });
+  }
 });
 
-app.delete(`/deleteUser/:id`, (req, res) => {
-  const id = req.params.id;
-  UserModel.deleteOne({ _id: id })
-    .then((user) => res.json(user))
-    .catch((err) => res.json(err));
-});
 
 const port = 4000;
 app.listen(port, () => {
