@@ -43,6 +43,26 @@ app.get('/', (req, res) => {
     .catch((err) => res.json(err));
 });
 
+app.get('/activitylist/', (req, res) => {
+  ActivityModel.find({})
+    .then((user) => res.json(user))
+    .catch((err) => res.json(err));
+});
+
+app.get('/activitylist/:id', (req, res) => {
+  const userId = req.params.id
+  ActivityModel.find({userId:userId})
+    .then((user) => res.json(user))
+    .catch((err) => res.json(err));
+});
+
+app.get('/activitylist/delete/:id', (req, res) => {
+  const actId = req.params.id
+  ActivityModel.deleteOne({_id : actId})
+    .then((user) => res.json(user))
+    .catch((err) => res.json(err));
+});
+
 app.post('/login', async (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
@@ -103,6 +123,7 @@ app.post('/signup',upload.single('image'), async (req, res) => {
     res.status(500).json({ message: 'Error saving user', error });
   }
 });
+
 
 app.post('/addactivity',async (req, res) => {
   console.log('User Add Activity!!')
