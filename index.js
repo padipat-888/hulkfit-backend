@@ -56,9 +56,10 @@ app.get('/activitylist/:id', (req, res) => {
     .catch((err) => res.json(err));
 });
 
-app.get('/activitylist/delete/:id', (req, res) => {
+app.delete('/activitylist/delete/:id', (req, res) => {
   const actId = req.params.id
-  ActivityModel.deleteOne({_id : actId})
+  console.log(actId)
+  ActivityModel.findByIdAndDelete(actId)
     .then((user) => res.json(user))
     .catch((err) => res.json(err));
 });
