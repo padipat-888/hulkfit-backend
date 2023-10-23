@@ -26,10 +26,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     }
-    // LogDate: {
-    //     type: Date,
-    //     default: Date.now
-    // }
+    LogDate: {
+        type: Date,
+        default: Date.now
+    }
 });
 
 

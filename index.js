@@ -45,7 +45,7 @@ app.get('/', (req, res) => {
 
 app.get('/:id', (req, res) => {
   const _id = req.params.id
-  UserModel.find({_id:_id})
+  UserModel.find({_id:userId})
     .then((user) => res.json(user))
     .catch((err) => res.json(err));
 });
