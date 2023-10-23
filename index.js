@@ -43,6 +43,13 @@ app.get('/', (req, res) => {
     .catch((err) => res.json(err));
 });
 
+app.get('/:id', (req, res) => {
+  const _id = req.params.id
+  UserModel.find({_id:_id})
+    .then((user) => res.json(user))
+    .catch((err) => res.json(err));
+});
+
 app.get('/activitylist/', (req, res) => {
   ActivityModel.find({})
     .then((user) => res.json(user))
@@ -135,7 +142,12 @@ app.post('/addactivity',async (req, res) => {
   const actType = req.body.actType;
   const actDuration = req.body.actDuration;
   const actDate = req.body.actDate;
-
+  console.log(userId)
+  console.log(actName)
+  console.log(actDescription)
+  console.log(actType)
+  console.log(actDuration)
+  console.log(actDate)
   const newAct = new ActivityModel({
     userId,
     actName,
