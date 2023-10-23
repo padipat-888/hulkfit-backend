@@ -135,19 +135,13 @@ app.post('/signup',upload.single('image'), async (req, res) => {
 
 app.post('/addactivity',async (req, res) => {
   console.log('User Add Activity!!')
-  //////////////////
   const userId = req.body.userId
   const actName = req.body.actName;
   const actDescription = req.body.actDescription;
   const actType = req.body.actType;
   const actDuration = req.body.actDuration;
   const actDate = req.body.actDate;
-  console.log(userId)
-  console.log(actName)
-  console.log(actDescription)
-  console.log(actType)
-  console.log(actDuration)
-  console.log(actDate)
+  
   const newAct = new ActivityModel({
     userId,
     actName,
