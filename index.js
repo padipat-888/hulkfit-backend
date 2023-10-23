@@ -45,7 +45,7 @@ app.get('/', (req, res) => {
 
 app.get('/:id', (req, res) => {
   const _id = req.params.id
-  UserModel.find({_id:userId})
+  UserModel.find({_id:_id})
     .then((user) => res.json(user))
     .catch((err) => res.json(err));
 });
@@ -99,7 +99,6 @@ app.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
     
-    
   } catch (error) {
     res.status(500).json({ message: 'Error during login', error });
   }
@@ -141,7 +140,7 @@ app.post('/addactivity',async (req, res) => {
   const actType = req.body.actType;
   const actDuration = req.body.actDuration;
   const actDate = req.body.actDate;
-  
+
   const newAct = new ActivityModel({
     userId,
     actName,
