@@ -63,6 +63,20 @@ app.get('/activitylist/:id', (req, res) => {
     .catch((err) => res.json(err));
 });
 
+app.put('/user/update', async (req, res) => {
+
+  const _id = req.body._id;
+  const updatedData = req.body;
+
+  try {
+    const updatedUser = await UserModel.findOneAndUpdate( {_id:_id} , updatedData, { new: true });
+    res.json(updatedUser);
+    console.log(updatedUser)
+  } catch (error) {
+    res.status(500).json({ error: 'Could not update user.' });
+  }
+});
+
 app.delete('/activitylist/delete/:id', (req, res) => {
   const actId = req.params.id
   console.log(actId)
