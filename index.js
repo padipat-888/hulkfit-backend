@@ -41,14 +41,54 @@ app.get('/', (req, res) => {
     .catch((err) => res.json(err));
 });
 
-
 app.get('/activitylist', (req, res) => {
-  console.log('Fetch Act Data');
-  ActivityModel.find({})
+=======
+        // Include the image URL in the response
+        const userWithImageUrl = {
+          _id: user._id,
+          fullname: user.fullname,
+          email: user.email,
+          password:user.password,
+          image: imageUrl,
+          // Include other user properties as needed
+        };
+
+        res.json(userWithImageUrl);
+      } else {
+        res.status(404).json({ message: 'User not found' });
+      }
+    })
+    .catch((err) => res.status(500).json(err));
+});
+
+app.get('/activitylist/dashboard/pie/:id', (req, res) => {
+  const userId = req.params.id
+  //DashboardModel.find({userId:userId})
+  ActivityModel.aggregate([
+    {
+      $match: { userId: userId }
+    },
+    {
+      $group: { // aggregate must be $group
+        _id: '$actType', // first key of aggregate must be _id
+        totalDuration: { $sum: '$actDuration' }
+      }
+    },
+    {
+      $sort: { _id: 1 } // 1 for ascending order, -1 for descending
+    }
+  ])
     .then((user) => res.json(user))
     .catch((err) => res.json(err));
 });
-
+app.get('/activitylist/dashboard/column/:id', (req, res) => {
+  console.log('Fetch Act Data By Id');
+  const userId = req.params.id
+  ActivityModel.find({userId:userId})
+    .sort({ actType: 1 }) // 1 for ascending order, -1 for descending
+    .then((user) => res.json(user))
+    .catch((err) => res.json(err));
+});
 
 app.get('/activitylist/:id', (req, res) => {
   console.log('Fetch Act Data By Id');
