@@ -32,7 +32,7 @@ app.use(express.static('public'));
 const uri =
   'mongodb+srv://admin:mongodb@clusteruser.5pf96sm.mongodb.net/hulkfit?retryWrites=true&w=majority';
 
-mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true }).then(console.log('Connect ok')).catch((err) => res.json(err));;
 
 app.get('/', (req, res) => {
   console.log('Fetch User Data');
@@ -41,14 +41,8 @@ app.get('/', (req, res) => {
     .catch((err) => res.json(err));
 });
 
-app.get('/:id', (req, res) => {
-  const _id = req.params.id;
-  UserModel.findById(_id) // Use findById to directly fetch the user by their ID
-    .then((user) => {
-      if (user) {
-        // Construct the image URL based on your server's configuration
-        const imageUrl = req.protocol + '://' + req.get('host') + '/' + user.image.replace('public/', '');
-
+app.get('/activitylist', (req, res) => {
+=======
         // Include the image URL in the response
         const userWithImageUrl = {
           _id: user._id,
@@ -66,6 +60,7 @@ app.get('/:id', (req, res) => {
     })
     .catch((err) => res.status(500).json(err));
 });
+
 app.get('/activitylist/dashboard/pie/:id', (req, res) => {
   const userId = req.params.id
   //DashboardModel.find({userId:userId})
@@ -91,13 +86,6 @@ app.get('/activitylist/dashboard/column/:id', (req, res) => {
   const userId = req.params.id
   ActivityModel.find({userId:userId})
     .sort({ actType: 1 }) // 1 for ascending order, -1 for descending
-    .then((user) => res.json(user))
-    .catch((err) => res.json(err));
-});
-
-app.get('/activitylist/', (req, res) => {
-  console.log('Fetch Act Data');
-  ActivityModel.find({})
     .then((user) => res.json(user))
     .catch((err) => res.json(err));
 });
@@ -128,6 +116,32 @@ app.put('/activitylist/update', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Could not update user.' });
   }
+});
+
+app.get('/user/:id', (req, res) => {
+  const _id = req.params.id;
+  UserModel.findById(_id) // Use findById to directly fetch the user by their ID
+    .then((user) => {
+      if (user) {
+        // Construct the image URL based on your server's configuration
+        const imageUrl = req.protocol + '://' + req.get('host') + '/' + user.image.replace('public/', '');
+
+        // Include the image URL in the response
+        const userWithImageUrl = {
+          _id: user._id,
+          fullname: user.fullname,
+          email: user.email,
+          password:user.password,
+          image: imageUrl,
+          // Include other user properties as needed
+        };
+
+        res.json(userWithImageUrl);
+      } else {
+        res.status(404).json({ message: 'User not found' });
+      }
+    })
+    .catch((err) => res.status(500).json(err));
 });
 
 app.put('/user/update', async (req, res) => {
