@@ -50,6 +50,34 @@ app.get('/:id', (req, res) => {
     .then((user) => res.json(user))
     .catch((err) => res.json(err));
 });
+app.get('/activitylist/dashboard/pie/:id', (req, res) => {
+  const userId = req.params.id
+  //DashboardModel.find({userId:userId})
+  ActivityModel.aggregate([
+    {
+      $match: { userId: userId }
+    },
+    {
+      $group: { // aggregate must be $group
+        _id: '$actType', // first key of aggregate must be _id
+        totalDuration: { $sum: '$actDuration' }
+      }
+    },
+    {
+      $sort: { _id: 1 } // 1 for ascending order, -1 for descending
+    }
+  ])
+    .then((user) => res.json(user))
+    .catch((err) => res.json(err));
+});
+app.get('/activitylist/dashboard/column/:id', (req, res) => {
+  console.log('Fetch Act Data By Id');
+  const userId = req.params.id
+  ActivityModel.find({userId:userId})
+    .sort({ actType: 1 }) // 1 for ascending order, -1 for descending
+    .then((user) => res.json(user))
+    .catch((err) => res.json(err));
+});
 
 app.get('/activitylist/', (req, res) => {
   console.log('Fetch Act Data');
