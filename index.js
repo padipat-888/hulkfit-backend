@@ -42,7 +42,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/activitylist', (req, res) => {
-=======
+
         // Include the image URL in the response
         const userWithImageUrl = {
           _id: user._id,
