@@ -42,23 +42,10 @@ app.get('/', (req, res) => {
 });
 
 app.get('/activitylist', (req, res) => {
-
-        // Include the image URL in the response
-        const userWithImageUrl = {
-          _id: user._id,
-          fullname: user.fullname,
-          email: user.email,
-          password:user.password,
-          image: imageUrl,
-          // Include other user properties as needed
-        };
-
-        res.json(userWithImageUrl);
-      } else {
-        res.status(404).json({ message: 'User not found' });
-      }
-    })
-    .catch((err) => res.status(500).json(err));
+  console.log('Fetch Act Data');
+  ActivityModel.find({})
+    .then((user) => res.json(user))
+    .catch((err) => res.json(err));
 });
 
 app.get('/activitylist/dashboard/pie/:id', (req, res) => {
