@@ -44,6 +44,13 @@ app.get('/', (req, res) => {
     .catch((err) => res.json(err));
 });
 
+app.get('/:id', (req, res) => {
+  const _id = req.params.id
+  UserModel.find({_id:_id})
+    .then((user) => res.json(user))
+    .catch((err) => res.json(err));
+});
+
 app.get('/activitylist/', (req, res) => {
   console.log('Fetch Act Data');
   ActivityModel.find({})
@@ -68,6 +75,20 @@ app.put('/activitylist/update', async (req, res) => {
 
   try {
     const updatedUser = await ActivityModel.findOneAndUpdate( {_id:actId} , updatedData, { new: true });
+    res.json(updatedUser);
+    console.log(updatedUser)
+  } catch (error) {
+    res.status(500).json({ error: 'Could not update user.' });
+  }
+});
+
+app.put('/user/update', async (req, res) => {
+
+  const _id = req.body._id;
+  const updatedData = req.body;
+
+  try {
+    const updatedUser = await UserModel.findOneAndUpdate( {_id:_id} , updatedData, { new: true });
     res.json(updatedUser);
     console.log(updatedUser)
   } catch (error) {
@@ -113,7 +134,6 @@ app.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
     
-    
   } catch (error) {
     res.status(500).json({ message: 'Error during login', error });
   }
@@ -148,7 +168,6 @@ app.post('/signup',upload.single('image'), async (req, res) => {
 
 app.post('/addactivity',async (req, res) => {
   console.log('User Add Activity!!')
-  //////////////////
   const userId = req.body.userId
   const actName = req.body.actName;
   const actDescription = req.body.actDescription;
