@@ -217,6 +217,40 @@ app.get('/sumofduration/:id', async (req,res) => {
   .catch((err) => res.json(err));
 })
 
+app.get('/activitylist/dashboard/pie/:id', (req, res) => {
+  const userId = req.params.id
+  //DashboardModel.find({userId:userId})
+  DashboardModel.aggregate([
+    {
+      $match: { userId: userId } 
+    },
+    {
+      $group: { // aggregate must be $group
+        _id: '$actType', // first key of aggregate must be _id
+        totalDuration: { $sum: '$actDuration' }
+      }
+    },
+    {
+      $sort: { _id: 1 } // 1 for ascending order, -1 for descending
+    }
+  ])
+    .then((user) => res.json(user))
+    .catch((err) => res.json(err));
+});
+
+app.get('/activitylist/dashboard/column/:id', (req, res) => {
+    console.log('Fetch Act Data By Id');
+    const userId = req.params.id
+    DashboardModel.find({userId:userId})
+      .sort({ actType: 1 }) // 1 for ascending order, -1 for descending
+      .then((user) => res.json(user))
+      .catch((err) => res.json(err));
+  });
+
+
+
+
+
 const port = 4000;
 app.listen(port, () => {
   console.log(`Server Start in Port ${port}`);
