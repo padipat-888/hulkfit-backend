@@ -47,7 +47,7 @@ app.get('/:id', (req, res) => {
     .then((user) => {
       if (user) {
         // Construct the image URL based on your server's configuration
-        const imageUrl = req.protocol + '://' + req.get('host') + '/' + user.image.replace('public\\', '');
+        const imageUrl = req.protocol + '://' + req.get('host') + '/' + user.image.replace('public/', '');
 
         // Include the image URL in the response
         const userWithImageUrl = {
@@ -169,16 +169,14 @@ app.post('/signup', upload.single('image'), async (req, res) => {
   const password = req.body.password;
 
   // Access the file path of the uploaded image
-  const image = req.file ? req.file.path : null;
+  const image = req.file ? req.file.path : 'public/uploads/avatar.png';
   console.log(image);
 
-  if (image) {
-    const imagePathWithoutPublic = image.replace('public\\', '');
     const newUser = new UserModel({
       fullname,
       email,
       password,
-      image: imagePathWithoutPublic, // Set the image path without "public\\"
+      image:image
     });
 
     try {
@@ -188,7 +186,6 @@ app.post('/signup', upload.single('image'), async (req, res) => {
     } catch (error) {
       res.status(500).json({ message: 'Error saving user', error });
     }
-  }
 });
 
 app.post('/addactivity', async (req, res) => {
