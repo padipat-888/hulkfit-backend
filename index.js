@@ -38,6 +38,7 @@ const uri =
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 app.get('/', (req, res) => {
+  console.log('Fetch User Data');
   UserModel.find({})
     .then((user) => res.json(user))
     .catch((err) => res.json(err));
@@ -51,16 +52,34 @@ app.get('/:id', (req, res) => {
 });
 
 app.get('/activitylist/', (req, res) => {
+  console.log('Fetch Act Data');
   ActivityModel.find({})
     .then((user) => res.json(user))
     .catch((err) => res.json(err));
 });
 
 app.get('/activitylist/:id', (req, res) => {
+  console.log('Fetch Act Data By Id');
   const userId = req.params.id
   ActivityModel.find({userId:userId})
     .then((user) => res.json(user))
     .catch((err) => res.json(err));
+});
+
+app.put('/activitylist/update', async (req, res) => {
+  console.log('User update');
+  
+  const actId = req.body._id;
+  const updatedData = req.body;
+  console.log('request body is :',req.body)
+
+  try {
+    const updatedUser = await ActivityModel.findOneAndUpdate( {_id:actId} , updatedData, { new: true });
+    res.json(updatedUser);
+    console.log(updatedUser)
+  } catch (error) {
+    res.status(500).json({ error: 'Could not update user.' });
+  }
 });
 
 app.put('/user/update', async (req, res) => {
@@ -78,6 +97,7 @@ app.put('/user/update', async (req, res) => {
 });
 
 app.delete('/activitylist/delete/:id', (req, res) => {
+  console.log('User Delete');
   const actId = req.params.id
   console.log(actId)
   ActivityModel.findByIdAndDelete(actId)
@@ -86,6 +106,7 @@ app.delete('/activitylist/delete/:id', (req, res) => {
 });
 
 app.post('/login', async (req, res) => {
+  console.log('User Login');
   const email = req.body.email;
   const password = req.body.password;
   console.log(`
@@ -145,7 +166,6 @@ app.post('/signup',upload.single('image'), async (req, res) => {
   }
 });
 
-
 app.post('/addactivity',async (req, res) => {
   console.log('User Add Activity!!')
   const userId = req.body.userId
@@ -154,6 +174,14 @@ app.post('/addactivity',async (req, res) => {
   const actType = req.body.actType;
   const actDuration = req.body.actDuration;
   const actDate = req.body.actDate;
+
+  console.log(userId)
+  console.log(actName)
+  console.log(actDescription)
+  console.log(actType)
+  console.log(actDuration)
+  console.log(actDate)
+
 
   const newAct = new ActivityModel({
     userId,
@@ -173,6 +201,40 @@ app.post('/addactivity',async (req, res) => {
   }
 });
 
+app.get('/sumofduration', async (req,res) => {
+  ActivityModel.aggregate([
+    {
+      $group: {
+        _id: null,
+        totalDuration: { $sum: "$actDuration" }
+      }
+    }
+  ]).then((user) => {
+    console.log(user)
+    res.json(user)
+  })
+  .catch((err) => res.json(err));
+})
+
+app.get('/sumofduration/:id', async (req,res) => {
+  console.log('Fetch Act Data By Id');
+  const userId = req.params.id
+  ActivityModel.aggregate([
+    {
+      $match: { userId: userId }
+    },
+    {
+      $group: {
+        _id: null,
+        totalDuration: { $sum: "$actDuration" }
+      }
+    }
+  ]).then((user) => {
+    console.log(user)
+    res.json(user)
+  })
+  .catch((err) => res.json(err));
+})
 
 const port = 4000;
 app.listen(port, () => {

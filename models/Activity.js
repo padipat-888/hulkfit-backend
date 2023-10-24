@@ -10,9 +10,7 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     actDescription: {
-        type: String,
-        unique: true,
-        required: true
+        type: String
     },
     actType: {
         type: String,
