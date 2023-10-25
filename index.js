@@ -7,7 +7,6 @@ const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
 const UserModel = require("./models/User");
 const ActivityModel = require('./models/Activity');
-const DashboardModel = require("./models/Dashboard");
 
 
 const storage = multer.diskStorage({
@@ -31,9 +30,9 @@ app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-const uri ='mongodb+srv://admin:mongodb@clusteruser.5pf96sm.mongodb.net/hulkfit?retryWrites=true&w=majority';
+//const uri ='mongodb+srv://admin:mongodb@clusteruser.5pf96sm.mongodb.net/hulkfit?retryWrites=true&w=majority';
 
-//const uri = "mongodb+srv://padipat123456789:mongojsd@clusteruser.nl5he2u.mongodb.net/toeyhulkfit?retryWrites=true&w=majority"
+const uri = "mongodb+srv://padipat123456789:mongojsd@clusteruser.nl5he2u.mongodb.net/toeyhulkfit?retryWrites=true&w=majority"
 
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
@@ -71,22 +70,6 @@ app.delete('/activitylist/delete/:id', (req, res) => {
     .then((user) => res.json(user))
     .catch((err) => res.json(err));
 });
-
-app.put('/activitylist/edit/:id', (req, res) => {
-  const actId = req.params.id
-  console.log(actId)
-  ActivityModel.findByIdAndUpdate(
-    {actId: actId},
-    {actName: req.body.actName, 
-     actType: req.body.actType, 
-     actDescription: req.body.actDescription,
-     actDuration: req.body.actDuration
-    }
-  )
-    .then((user) => res.json(user))
-    .catch((err) => res.json(err));
-});
-
 
 app.put('/activitylist/update', async (req, res) => {
   console.log('User update');
@@ -129,7 +112,8 @@ app.get('/sumofduration/:id', async (req,res) => {
     {
       $group: {
         _id: null,
-        totalDuration: { $sum: "$actDuration" }
+        totalDuration: { $sum: "$actDuration" },
+        totalAct: { $sum: 1 } // Calculate the count of documents in each group
       }
     }
   ]).then((user) => {
@@ -139,9 +123,9 @@ app.get('/sumofduration/:id', async (req,res) => {
   .catch((err) => res.json(err));
 })
 
-app.get('/activitylist/dashboard/pie/:id', (req, res) => {
+app.get('/aggregate/mostact/:id', (req, res) => {
+  console.log('Fetch Act Data By Id for pie chart');
   const userId = req.params.id
-  //DashboardModel.find({userId:userId})
   ActivityModel.aggregate([
     {
       $match: { userId: userId } 
@@ -149,7 +133,52 @@ app.get('/activitylist/dashboard/pie/:id', (req, res) => {
     {
       $group: { // aggregate must be $group
         _id: '$actType', // first key of aggregate must be _id
-        totalDuration: { $sum: '$actDuration' }
+        totalDuration: { $sum: '$actDuration' },
+        totalAct: { $sum: 1 } // Calculate the count of documents in each group
+      }
+    },
+    {
+      $sort: { totalAct: -1 } // 1 for ascending order, -1 for descending
+    }
+  ])
+    .then((user) => res.json(user))
+    .catch((err) => res.json(err));
+});
+
+app.get('/aggregate/mostduration/:id', (req, res) => {
+  console.log('Fetch Act Data By Id for pie chart');
+  const userId = req.params.id
+  ActivityModel.aggregate([
+    {
+      $match: { userId: userId } 
+    },
+    {
+      $group: { // aggregate must be $group
+        _id: '$actType', // first key of aggregate must be _id
+        totalDuration: { $sum: '$actDuration' },
+        totalAct: { $sum: 1 } // Calculate the count of documents in each group
+      }
+    },
+    {
+      $sort: { totalDuration: -1 } // 1 for ascending order, -1 for descending
+    }
+  ])
+    .then((user) => res.json(user))
+    .catch((err) => res.json(err));
+});
+
+app.get('/activitylist/dashboard/pie/:id', (req, res) => {
+  console.log('Fetch Act Data By Id for pie chart');
+  const userId = req.params.id
+  ActivityModel.aggregate([
+    {
+      $match: { userId: userId } 
+    },
+    {
+      $group: { // aggregate must be $group
+        _id: '$actType', // first key of aggregate must be _id
+        totalDuration: { $sum: '$actDuration' },
+        totalAct: { $sum: 1 } // Calculate the count of documents in each group
       }
     },
     {
@@ -161,7 +190,7 @@ app.get('/activitylist/dashboard/pie/:id', (req, res) => {
 });
 
 app.get('/activitylist/dashboard/column/:id', (req, res) => {
-  console.log('Fetch Act Data By Id');
+  console.log('Fetch Act Data By Id for column chart');
   const userId = req.params.id
   ActivityModel.find({userId:userId})
     .sort({ actType: 1 }) // 1 for ascending order, -1 for descending
