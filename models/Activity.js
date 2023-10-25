@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema({
         required: true 
     },
     actDate: {
-        type: Date,
+        type: String,
         required: true,
     },
     LogDate: {
